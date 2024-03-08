@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type episode struct {
@@ -100,6 +101,12 @@ func downloadShow(showid int) error {
 	}
 
 	sh, _ := readShow(strconv.Itoa(showid))
+
+	filterlist := []string{"<b>", "</b>"}
+
+	for _, i := range filterlist {
+		sh.Description = strings.ReplaceAll(sh.Description, i, "")
+	}
 
 	for _, i := range sh.Episodes {
 		i.Seen = false
