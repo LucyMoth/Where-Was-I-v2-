@@ -50,7 +50,7 @@ func browseShows(app *tview.Application) {
 }
 
 func browseShowsSubMenu(app *tview.Application, show tvshow) {
-	showInfo := fmt.Sprintf("Name: %s\nDescription: %s\nStart Date: %s\nEnd Date: %s\nStatus: %s\n\n",
+	showInfo := fmt.Sprintf("\nName: %s\n\nDescription: %s\n\nStart Date: %s\n\nEnd Date: %s\n\nStatus: %s\n\n",
 		show.Name, show.Description, show.StartDate, show.EndDate, show.Status)
 	tvShowInfo := tview.NewTextView().
 		SetText(showInfo).
@@ -111,10 +111,13 @@ func browseShowsSubMenu(app *tview.Application, show tvshow) {
 
 	episodesTable.SetFixed(1, 0)
 
-	flex := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(tvShowInfo, 0, 2, false).
+	flexinner := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(episodesTable, 0, 10, true).
-		AddItem(tvShowFooter, 0, 1, false)
+		AddItem(tvShowFooter, 0, 2, false)
+
+	flex := tview.NewFlex().SetDirection(tview.FlexColumn).
+		AddItem(flexinner, 0, 10, true).
+		AddItem(tvShowInfo, 0, 3, false)
 
 	flex.SetBorder(true).SetTitle("Browse Shows").SetTitleAlign(tview.AlignLeft)
 
