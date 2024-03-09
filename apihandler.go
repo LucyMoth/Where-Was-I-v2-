@@ -118,8 +118,8 @@ func downloadShow(showid int) error {
 
 }
 
-func listShows(dirPath string) []showjson {
-	files, _ := os.ReadDir(dirPath)
+func listShows() []showjson {
+	files, _ := os.ReadDir(jsonpath)
 
 	var shows []showjson
 	for _, file := range files {

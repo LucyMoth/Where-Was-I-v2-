@@ -35,7 +35,7 @@ func browseShows(app *tview.Application) {
 
 	submenu.SetBorder(true).SetTitle("Browse Shows").SetTitleAlign(tview.AlignLeft)
 
-	shows := listShows("json/")
+	shows := listShows()
 
 	for i, show := range shows {
 		index := i + 1
