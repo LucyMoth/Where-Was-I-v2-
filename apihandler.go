@@ -38,6 +38,19 @@ type showresults struct {
 
 const jsonpath = "json/"
 
+// Check directory for shows exists or create it if not
+func checkDirExsists() error {
+	if _, err := os.Stat(jsonpath); os.IsNotExist(err) {
+		err := os.Mkdir(jsonpath, 0755)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+
+}
+
 func searchShows(showname string) (showresults, error) {
 	var results showresults
 
@@ -116,6 +129,14 @@ func downloadShow(showid int) error {
 
 	return nil
 
+}
+
+func deleteShow(filename string) error {
+	err := os.Remove(jsonpath + filename)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func listShows() []showjson {

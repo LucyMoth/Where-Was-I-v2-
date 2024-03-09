@@ -85,13 +85,13 @@ func browseShowsSubMenu(app *tview.Application, show tvshow) {
 		SetSelectable(true, false).
 		SetSelectedStyle(tcell.StyleDefault.Background(tcell.ColorDarkMagenta).Foreground(tcell.ColorBlack)).
 		SetBorders(true).
-		SetBordersColor(tcell.ColorWhite)
+		SetBordersColor(tcell.ColorGray)
 
-	episodesTable.SetCell(0, 0, tview.NewTableCell("Season").SetTextColor(tcell.ColorWhite))
-	episodesTable.SetCell(0, 1, tview.NewTableCell("Episode").SetTextColor(tcell.ColorWhite))
-	episodesTable.SetCell(0, 2, tview.NewTableCell("Name").SetTextColor(tcell.ColorWhite))
-	episodesTable.SetCell(0, 3, tview.NewTableCell("Air Date").SetTextColor(tcell.ColorWhite))
-	episodesTable.SetCell(0, 4, tview.NewTableCell("Seen").SetTextColor(tcell.ColorWhite))
+	episodesTable.SetCell(0, 0, tview.NewTableCell("Season").SetTextColor(tcell.ColorGray))
+	episodesTable.SetCell(0, 1, tview.NewTableCell("Episode").SetTextColor(tcell.ColorGray))
+	episodesTable.SetCell(0, 2, tview.NewTableCell("Name").SetTextColor(tcell.ColorGray))
+	episodesTable.SetCell(0, 3, tview.NewTableCell("Air Date").SetTextColor(tcell.ColorGray))
+	episodesTable.SetCell(0, 4, tview.NewTableCell("Seen").SetTextColor(tcell.ColorGray))
 
 	var row int
 
@@ -137,13 +137,14 @@ func browseShowsSubMenu(app *tview.Application, show tvshow) {
 
 	flexinner := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(episodesTable, 0, 10, true).
+		AddItem(nil, 0, 1, false).
 		AddItem(tvShowFooter, 0, 2, false)
 
 	flex := tview.NewFlex().SetDirection(tview.FlexColumn).
-		AddItem(flexinner, 0, 10, true).
-		AddItem(tvShowInfo, 0, 3, false)
+		AddItem(flexinner, 0, 2, true).
+		AddItem(tvShowInfo, 0, 1, false)
 
-	flex.SetBorder(true).SetTitle("Browse Shows").SetTitleAlign(tview.AlignLeft)
+	flex.SetBorder(true).SetTitle("Browse Shows").SetTitleAlign(tview.AlignLeft).SetBorderColor(tcell.ColorPurple)
 
 	flex.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyRune {
@@ -163,12 +164,17 @@ func browseShowsSubMenu(app *tview.Application, show tvshow) {
 				ep := &show.Episodes[row-1]
 				ep.Seen = !ep.Seen
 				episodesTable.SetCell(row, 4, tview.NewTableCell(strconv.FormatBool(ep.Seen)).SetTextColor(colorSeen(*ep)))
-				tvShowFooter.SetText(fmt.Sprintf("Next Unwatched Episode: %s", next()))
+				tvShowFooter.SetText(fmt.Sprintf("Next Unwatched Episode: %s\nPress CTRL+R to remove show", next()))
 				if e := writeShow(show, strconv.Itoa(show.ID)); e != nil {
 					errorView(app, e)
 				}
 				return nil
 			}
+		} else if event.Key() == tcell.KeyCtrlR {
+			if e := deleteShow(strconv.Itoa(show.ID)); e != nil {
+				errorView(app, e)
+			}
+			browseShows(app)
 		}
 		return event
 	})
@@ -223,6 +229,7 @@ func SearchShowsResult(app *tview.Application, shows []showjson) {
 }
 
 func main() {
+	checkDirExsists()
 	app := tview.NewApplication()
 	mainMenu(app)
 }
