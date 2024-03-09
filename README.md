@@ -1,8 +1,10 @@
 # Where Was I? (v2)
 
-![Demo video](https://i.imgur.com/rbQXJud.gif)
+## A simple TUI TV Show tracker
 
-The new and improved version! feauturing 4% less sphagetti code!!
+![Demo video](https://i.imgur.com/l3KVEet.gif)
+
+The new and improved version! featuring 4% less sphagetti code!!
 
 ## Acknowledgements
 
