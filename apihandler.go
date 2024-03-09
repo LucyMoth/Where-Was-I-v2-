@@ -38,11 +38,13 @@ type showresults struct {
 
 const jsonpath = "json/"
 
-func searchShows(showname string) showresults {
+func searchShows(showname string) (showresults, error) {
+	var results showresults
+
 	r, e := http.Get(fmt.Sprintf("https://www.episodate.com/api/search?q=%s&page=1", showname))
 
 	if e != nil {
-		fmt.Println("no response")
+		return results, e
 	}
 
 	defer r.Body.Close()
@@ -50,16 +52,14 @@ func searchShows(showname string) showresults {
 	body, e := io.ReadAll(r.Body)
 
 	if e != nil {
-		fmt.Println("no response")
+		return results, e
 	}
-
-	var results showresults
 
 	if e := json.Unmarshal(body, &results); e != nil {
-		fmt.Println("Unmarshal failed")
+		return results, e
 	}
 
-	return results
+	return results, nil
 
 }
 

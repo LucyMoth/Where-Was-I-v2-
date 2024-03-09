@@ -27,6 +27,27 @@ func mainMenu(app *tview.Application) {
 	}
 }
 
+func errorView(app *tview.Application, err error) {
+	e := tview.NewTextView().SetText(err.Error() + "\n\nPress Q to go back to the main menu")
+
+	e.SetBorder(true).SetTitle("Error").SetTitleAlign(tview.AlignLeft).SetBorderColor(tcell.ColorRed)
+
+	e.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyRune {
+			switch event.Rune() {
+			case 'q':
+				mainMenu(app)
+				return nil
+			}
+		}
+		return event
+	})
+
+	if err := app.SetRoot(e, true).Run(); err != nil {
+		fmt.Println("Error: ", err)
+	}
+}
+
 func browseShows(app *tview.Application) {
 	submenu := tview.NewList().
 		AddItem("Back", "", 'q', func() {
@@ -41,7 +62,10 @@ func browseShows(app *tview.Application) {
 		index := i + 1
 		showCopy := show
 		submenu.AddItem(showCopy.Name, "", rune('0'+index), func() {
-			s, _ := readShow(strconv.Itoa(showCopy.ID))
+			s, e := readShow(strconv.Itoa(showCopy.ID))
+			if e != nil {
+				errorView(app, e)
+			}
 			browseShowsSubMenu(app, s)
 		})
 	}
@@ -140,7 +164,9 @@ func browseShowsSubMenu(app *tview.Application, show tvshow) {
 				ep.Seen = !ep.Seen
 				episodesTable.SetCell(row, 4, tview.NewTableCell(strconv.FormatBool(ep.Seen)).SetTextColor(colorSeen(*ep)))
 				tvShowFooter.SetText(fmt.Sprintf("Next Unwatched Episode: %s", next()))
-				writeShow(show, strconv.Itoa(show.ID))
+				if e := writeShow(show, strconv.Itoa(show.ID)); e != nil {
+					errorView(app, e)
+				}
 				return nil
 			}
 		}
@@ -157,9 +183,13 @@ func searchShowsView(app *tview.Application) {
 
 	doneFunc := func(key tcell.Key) {
 		searchTerm := inputField.GetText()
-		results := searchShows(searchTerm).Shows
+		results, e := searchShows(searchTerm)
 
-		SearchShowsResult(app, results)
+		if e != nil {
+			errorView(app, e)
+		}
+
+		SearchShowsResult(app, results.Shows)
 	}
 
 	inputField.SetDoneFunc(doneFunc)
@@ -182,7 +212,9 @@ func SearchShowsResult(app *tview.Application, shows []showjson) {
 		index := i + 1
 		showCopy := show
 		submenu.AddItem(show.Name, "", rune('0'+index), func() {
-			downloadShow(showCopy.ID)
+			if e := downloadShow(showCopy.ID); e != nil {
+				errorView(app, e)
+			}
 			mainMenu(app)
 		})
 	}
